@@ -1,0 +1,62 @@
+name: Build ASCII-OS
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          gnu-efi \
+          gcc-multilib \
+          xorriso \
+          qemu-system-x86 \
+          ovmf
+    
+    - name: Check dependencies
+      run: make check
+    
+    - name: Build BOOTIA32.EFI
+      run: make
+    
+    - name: Verify output
+      run: |
+        if [ ! -f out/BOOTIA32.EFI ]; then
+          echo "Error: BOOTIA32.EFI not created"
+          exit 1
+        fi
+        echo "Build successful!"
+        ls -lh out/BOOTIA32.EFI
+    
+    - name: Create ISO
+      run: ./tools/make_iso_uefi32.sh out/BOOTIA32.EFI out/ascii-os.iso
+    
+    - name: Verify ISO
+      run: |
+        if [ ! -f out/ascii-os.iso ]; then
+          echo "Error: ISO not created"
+          exit 1
+        fi
+        echo "ISO created successfully!"
+        ls -lh out/ascii-os.iso
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ascii-os-build
+        path: |
+          out/BOOTIA32.EFI
+          out/ascii-os.iso
+        retention-days: 30
