@@ -1,0 +1,27 @@
+# Build output
+out/
+*.o
+*.so
+*.efi
+
+# ISO images
+*.iso
+
+# Editor backups
+*~
+*.swp
+*.swo
+.*.swp
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
